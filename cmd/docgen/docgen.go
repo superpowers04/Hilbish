@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"path/filepath"
 	"go/ast"
 	"go/doc"
 	"go/parser"
 	"go/token"
-	"strings"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
 type EmmyPiece struct {
@@ -17,9 +17,9 @@ type EmmyPiece struct {
 	Params []string // we only need to know param name to put in function
 }
 type DocPiece struct {
-	Doc []string
-	FuncSig string
+	FuncSig  string
 	FuncName string
+	Doc []string
 }
 
 // feel free to clean this up
@@ -28,10 +28,9 @@ func main() {
 	fset := token.NewFileSet()
 	os.Mkdir("docs", 0777)
 	os.Mkdir("emmyLuaDocs", 0777)
-	
 
 	dirs := []string{"./"}
-	filepath.Walk("golibs/", func (path string, info os.FileInfo, err error) error {
+	filepath.Walk("golibs/", func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
 			return nil
 		}
@@ -65,8 +64,12 @@ func main() {
 		p := doc.New(f, "./", doc.AllDecls)
 		for _, t := range p.Funcs {
 			mod := l
-			if strings.HasPrefix(t.Name, "hl") { mod = "hilbish" }
-			if !strings.HasPrefix(t.Name, prefix[mod]) || t.Name == "Loader" { continue }
+			if strings.HasPrefix(t.Name, "hl") {
+				mod = "hilbish"
+			}
+			if !strings.HasPrefix(t.Name, prefix[mod]) || t.Name == "Loader" {
+				continue
+			}
 			parts := strings.Split(strings.TrimSpace(t.Doc), "\n")
 			funcsig := parts[0]
 			doc := parts[1:]
@@ -88,19 +91,21 @@ func main() {
 					funcdoc = append(funcdoc, d)
 				}
 			}
-			
+
 			dps := DocPiece{
-				Doc: funcdoc,
-				FuncSig: funcsig,
+				Doc:      funcdoc,
+				FuncSig:  funcsig,
 				FuncName: strings.TrimPrefix(t.Name, prefix[mod]),
 			}
-			
+
 			docs[mod] = append(docs[mod], dps)
 			emmyDocs[mod] = append(emmyDocs[mod], em)
 		}
 		for _, t := range p.Types {
 			for _, m := range t.Methods {
-				if !strings.HasPrefix(m.Name, prefix[l]) || m.Name == "Loader" { continue }
+				if !strings.HasPrefix(m.Name, prefix[l]) || m.Name == "Loader" {
+					continue
+				}
 				parts := strings.Split(strings.TrimSpace(m.Doc), "\n")
 				funcsig := parts[0]
 				doc := parts[1:]
@@ -135,7 +140,9 @@ func main() {
 	}
 
 	for mod, v := range docs {
-		if mod == "main" { continue }
+		if mod == "main" {
+			continue
+		}
 		f, _ := os.Create("docs/" + mod + ".txt")
 		for _, dps := range v {
 			f.WriteString(dps.FuncSig + " > ")
@@ -147,9 +154,11 @@ func main() {
 			f.WriteString("\n")
 		}
 	}
-	
+
 	for mod, v := range emmyDocs {
-		if mod == "main" { continue }
+		if mod == "main" {
+			continue
+		}
 		f, _ := os.Create("emmyLuaDocs/" + mod + ".lua")
 		f.WriteString("--- @meta\n\nlocal " + mod + " = {}\n\n")
 		for _, em := range v {

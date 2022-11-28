@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"os/exec"
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -19,21 +19,21 @@ import (
 	rt "github.com/arnodel/golua/runtime"
 	"mvdan.cc/sh/v3/shell"
 	//"github.com/yuin/gopher-lua/parse"
+	"mvdan.cc/sh/v3/expand"
 	"mvdan.cc/sh/v3/interp"
 	"mvdan.cc/sh/v3/syntax"
-	"mvdan.cc/sh/v3/expand"
 )
 
 var errNotExec = errors.New("not executable")
 var errNotFound = errors.New("not found")
 var runnerMode rt.Value = rt.StringValue("hybrid")
 
-type execError struct{
+type execError struct {
+	err error
 	typ string
 	cmd string
 	code int
 	colon bool
-	err error
 }
 
 func (e execError) Error() string {

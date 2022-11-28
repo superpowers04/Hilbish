@@ -19,22 +19,20 @@ var jobs *jobHandler
 var jobMetaKey = rt.StringValue("hshjob")
 
 type job struct {
-	cmd string
-	running bool
-	id int
-	pid int
-	exitCode int
-	once bool
-	args []string
-	// save path for a few reasons, one being security (lmao) while the other
-	// would just be so itll be the same binary command always (path changes)
-	path string
-	handle *exec.Cmd
-	cmdout io.Writer
 	cmderr io.Writer
-	stdout *bytes.Buffer
-	stderr *bytes.Buffer
+	cmdout io.Writer
 	ud *rt.UserData
+	stderr *bytes.Buffer
+	stdout *bytes.Buffer
+	handle *exec.Cmd
+	path string
+	cmd string
+	args []string
+	exitCode int
+	pid int
+	id int
+	once bool
+	running bool
 }
 
 func (j *job) start() error {
@@ -204,9 +202,9 @@ func luaBackgroundJob(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 
 type jobHandler struct {
 	jobs map[int]*job
-	latestID int
-	foreground bool // if job currently in the foreground
 	mu *sync.RWMutex
+	latestID int
+	foreground bool
 }
 
 func newJobHandler() *jobHandler {

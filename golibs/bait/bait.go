@@ -5,11 +5,12 @@ import (
 
 	"hilbish/util"
 
-	rt "github.com/arnodel/golua/runtime"
 	"github.com/arnodel/golua/lib/packagelib"
+	rt "github.com/arnodel/golua/runtime"
 )
 
 type listenerType int
+
 const (
 	goListener listenerType = iota
 	luaListener
@@ -19,18 +20,18 @@ const (
 type Recoverer func(event string, handler *Listener, err interface{})
 
 // Listener is a struct that holds the handler for an event.
-type Listener struct{
-	typ listenerType
-	once bool
+type Listener struct {
 	caller func(...interface{})
 	luaCaller *rt.Closure
+	typ listenerType
+	once bool
 }
 
-type Bait struct{
-	Loader packagelib.Loader
+type Bait struct {
 	recoverer Recoverer
-	handlers map[string][]*Listener
+	handlers  map[string][]*Listener
 	rtm *rt.Runtime
+	Loader packagelib.Loader
 }
 
 // New creates a new Bait instance.
@@ -316,8 +317,10 @@ func (b *Bait) bhooks(t *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 
 	luaHandlers := rt.NewTable()
 	for _, handler := range handlers {
-		if handler.typ != luaListener { continue }
-		luaHandlers.Set(rt.IntValue(luaHandlers.Len() + 1), rt.FunctionValue(handler.luaCaller))
+		if handler.typ != luaListener {
+			continue
+		}
+		luaHandlers.Set(rt.IntValue(luaHandlers.Len()+1), rt.FunctionValue(handler.luaCaller))
 	}
 
 	if luaHandlers.Len() == 0 {

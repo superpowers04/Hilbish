@@ -10,21 +10,22 @@ import (
 )
 
 type timerType int64
+
 const (
 	timerInterval timerType = iota
 	timerTimeout
 )
 
-type timer struct{
+type timer struct {
+	ticker  *time.Ticker
+	ud *rt.UserData
+	channel chan struct{}
+	fun *rt.Closure
+	th *timerHandler
+	dur time.Duration
 	id int
 	typ timerType
 	running bool
-	dur time.Duration
-	fun *rt.Closure
-	th *timerHandler
-	ticker *time.Ticker
-	ud *rt.UserData
-	channel chan struct{}
 }
 
 func (t *timer) start() error {
@@ -56,7 +57,7 @@ func (t *timer) start() error {
 			}
 		}
 	}()
-	
+
 	return nil
 }
 
@@ -69,7 +70,7 @@ func (t *timer) stop() error {
 	t.running = false
 	t.th.running--
 	t.th.wg.Done()
-	
+
 	return nil
 }
 
@@ -87,7 +88,7 @@ func timerStart(thr *rt.Thread, c *rt.GoCont) (rt.Cont, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return c.Next(), nil
 }
 
