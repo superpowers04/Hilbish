@@ -18,6 +18,7 @@ completed.
 
 ### Fixed
 - Return the prefix when calling `hilbish.completions.call`
+- Cat now prints read errors instead of throwing an unrelated lua error
 
 [#219]: https://github.com/Rosettea/Hilbish/issues/219
 ### Fixed
